@@ -49,4 +49,33 @@ describe('votingdapp', () => {
     expect(poll.description).toEqual("What is your favorite type of peanut butter?");
     expect(poll.pollStart.toNumber()).toBeLessThan(poll.pollEnd.toNumber());
   });
+
+  it("initialize candidate", async () => {
+    await votingProgram.methods.initializeCandidate(
+      "Smooth",
+      new anchor.BN(1),
+    ).rpc();
+
+    const [smoothAddress] = PublicKey.findProgramAddressSync(
+      [new anchor.BN(1).toArrayLike(Buffer, 'le', 8), Buffer.from("Smooth")],
+      votingAddress,
+    );
+    const smoothCandidate = await votingProgram.account.candidate.fetch(smoothAddress);
+    console.log(smoothCandidate);
+    expect(smoothCandidate.candidateVotes.toNumber()).toEqual(0);
+
+    await votingProgram.methods.initializeCandidate(
+      "Crunchy",
+      new anchor.BN(1),
+    ).rpc();
+
+    const [crunchyAddress] = PublicKey.findProgramAddressSync(
+      [new anchor.BN(1).toArrayLike(Buffer, 'le', 8), Buffer.from("Crunchy")],
+      votingAddress,
+    );
+    const crunchyCandidate = await votingProgram.account.candidate.fetch(crunchyAddress);
+    console.log(crunchyCandidate);
+    expect(crunchyCandidate.candidateVotes.toNumber()).toEqual(0);
+
+  });
 })
